@@ -1,0 +1,7 @@
+{
+  "name": "autofront",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}
