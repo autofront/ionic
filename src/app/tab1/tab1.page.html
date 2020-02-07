@@ -9,12 +9,29 @@
 <ion-content *ngIf="dataNotEmpty()" padding>
   <div *ngFor="let render of data.page.value.body.render">
 
+    <div *ngIf="isRender(render, 'text')">
+      <h3 *ngIf="isRender(render, 'text')">{{ render.value.header }}</h3>
+      <h5 *ngIf="isRender(render, 'text')">{{ render.value.text }}</h5>
+    </div>
+    
     <ion-item *ngIf="isRender(render, 'input')">
       <ion-label position="stacked">{{ render.value.name }} <ion-text color="danger">*</ion-text>
       </ion-label>
-      <ion-input required [name]="render.value.name" [type]="render.value.type"
-        [(ngModel)]="data.form[render.value.name]" (change)="runFuncByString(render.value.events.change)"></ion-input>
+      <ion-input required [name]="render.value.name" 
+        [type]="render.value.type"
+        [value]="render.value.value"
+        [(ngModel)]="data.form[render.value.name]" 
+        (change)="runFuncByString(render.value.events.change)"></ion-input>
     </ion-item>
+
+
   </div>
 
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-title>Footer</ion-title>
+    <ion-button expand="block">Block Button</ion-button>
+  </ion-toolbar>
+</ion-footer>

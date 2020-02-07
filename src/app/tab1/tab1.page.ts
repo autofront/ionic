@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FirebaseHelper } from '../shared/helpers/firebase.helper';
 import { Functions } from '../shared/helpers/functions.helper';
+import { DATA }  from '../shared/data';
 
 @Component({
   selector: 'app-tab1',
@@ -10,7 +11,7 @@ import { Functions } from '../shared/helpers/functions.helper';
 export class Tab1Page implements OnInit {
   Functions = Functions;
   data = {
-    page: null,
+    page: DATA.pages.page_test,
     form: {}
   };
 
@@ -21,24 +22,13 @@ export class Tab1Page implements OnInit {
   ngOnInit() {
     const hierarchy = (this.auth) ? 'user' : 'guest';
     const params = { hierarchy, order: 1 };
-    this.getPage(params)
+    this.getInputs();
   }
 
 
   getByIndex(data = [], index: string, value: string | number) {
     return data.filter(item => item[index] == value);
   }
-
-  async getPage({ hierarchy, order }) {
-    const result = await this.service.getPage({ hierarchy, order });
-    result.subscribe(item => {
-      this.data.page = item;
-      if(this.dataNotEmpty()) {
-        this.getInputs();
-      }
-    });
-  }
-
 
   isForm(type) {
     return ['input', 'select'].includes(type);
