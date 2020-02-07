@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FirebaseDatabaseService } from '../shared/services/firebase.service';
-import { take } from 'rxjs/operators';
+import { FirebaseHelper } from '../shared/helpers/firebase.helper';
+import { Functions } from '../shared/helpers/functions.helper';
 
 @Component({
   selector: 'app-tab1',
@@ -8,15 +8,15 @@ import { take } from 'rxjs/operators';
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page implements OnInit {
-
+  Functions = Functions;
   data = {
     page: null,
-    form: null
+    form: {}
   };
 
   auth = false;
 
-  constructor(private db: FirebaseDatabaseService) { }
+  constructor(private service: FirebaseHelper) { }
 
   ngOnInit() {
     const hierarchy = (this.auth) ? 'user' : 'guest';
@@ -29,11 +29,43 @@ export class Tab1Page implements OnInit {
     return data.filter(item => item[index] == value);
   }
 
-  getPage({ hierarchy, order }) {
-    this.db.list('pages').pipe(take(1)).subscribe(item => {
-      let page = this.getByIndex(item, 'hierarchy', hierarchy);
-      page = this.getByIndex(item, 'order', order);
-      this.data.page = (page.length) ? page[0] : null;
+  async getPage({ hierarchy, order }) {
+    const result = await this.service.getPage({ hierarchy, order });
+    result.subscribe(item => {
+      this.data.page = item;
+      if(this.dataNotEmpty()) {
+        this.getInputs();
+      }
     });
+  }
+
+
+  isForm(type) {
+    return ['input', 'select'].includes(type);
+  }
+
+  getInputs() {
+    const { render } = this.data.page.value.body;
+    render.filter(item => 
+      this.isForm(item.type))
+        .map(item =>  this.data.form[item.value.name] = item.value.value);
+  }
+
+  dataNotEmpty() {
+    return (this.data.page != null);
+  }
+
+  isRender(render: any, type: string) {
+    return render.type === type;
+  }
+
+  runFuncByString(functionNameString) {
+    const namespaces = functionNameString.split(".");
+    const functionName = namespaces.pop();
+    let context = this.Functions;
+    for (let line in namespaces) {
+      context = context[namespaces[line]];
+    }
+    return context[functionName](this);
   }
 }
